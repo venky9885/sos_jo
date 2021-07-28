@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:sos_jo/Screens/my_homepafe.dart';
+import 'package:get_storage/get_storage.dart';
 
-void main() {
+void main() async {
+  await GetStorage.init();
   runApp(MyApp());
 }
 
@@ -11,7 +13,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
+      title: 'SOS JO',
       theme: ThemeData(
         // This is the theme of your application.
         //

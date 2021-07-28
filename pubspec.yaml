@@ -27,8 +27,17 @@ dependencies:
   url_launcher: ^6.0.9
   geolocator:
   geocoder: ^0.2.1
-  flutter_sms: ^2.3.1
-  assets_audio_player: ^3.0.3+3 
+  #flutter_sms: ^2.3.1
+  assets_audio_player: ^3.0.3+3
+  flutter_flashlight: ^1.0.0
+  shake: ^1.0.1
+  rflutter_alert:
+  get_storage: ^2.0.3
+  flutter_vibrate: ^1.1.0
+  screen_state: ^2.0.0
+  sms:
+  #hardware_buttons: ^1.0.0
+  #torch_compat: ^1.0.2 
   #hardware_buttons: ^1.0.0
 
 

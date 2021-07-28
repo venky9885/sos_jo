@@ -1,10 +1,24 @@
 //import 'dart:async';
+import 'dart:async';
+//import 'dart:html';
+import 'dart:io';
+
 import 'package:assets_audio_player/assets_audio_player.dart';
-import 'package:flutter_sms/flutter_sms.dart';
+import 'package:flutter_flashlight/flutter_flashlight.dart';
+//import 'package:flutter_sms/flutter_sms.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_vibrate/flutter_vibrate.dart';
 import 'package:geocoder/geocoder.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
+import 'package:screen_state/screen_state.dart';
+import 'package:shake/shake.dart';
+import 'package:sms/sms.dart';
+//import 'package:sos_jo/Screens/background_service.dart';
+import 'package:sos_jo/Screens/passsword.dart';
 import 'package:sos_jo/location.dart';
+//import 'package:torch_compat/torch_compat.dart';
 import 'package:url_launcher/url_launcher.dart';
 // ignore: import_of_legacy_library_into_null_safe
 //import 'package:hardware_buttons/hardware_buttons.dart';
@@ -17,12 +31,90 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  void _sendSMS(String message, List<String> recipents) async {
-    String _result = await sendSMS(message: message, recipients: recipents)
-        .catchError((onError) {
-      print(onError);
-    });
-    print(_result);
+  SmsSender sender = new SmsSender();
+  String address = 'hello ';
+
+  Screen _screen;
+  StreamSubscription<ScreenStateEvent> _subscription;
+  int scr = 0;
+  void showToast(String msg, BuildContext ctx) {
+    Alert(
+      context: ctx,
+      type: AlertType.success,
+      title: msg.toString(),
+      //desc: "Flutter is more awesome with RFlutter Alert.",
+      buttons: [
+        DialogButton(
+          child: Text(
+            "Ok",
+            style: TextStyle(color: Colors.white, fontSize: 20),
+          ),
+          onPressed: () => Navigator.pop(context),
+          width: 120,
+        )
+      ],
+    ).show();
+  }
+
+  void onData(ScreenStateEvent event) {
+    print(event);
+    if (event == ScreenStateEvent.SCREEN_OFF) {
+      scr += 1;
+    } else if (event == ScreenStateEvent.SCREEN_ON) {
+      scr += 1;
+    }
+    print(scr);
+    if (scr == 5) {
+      final box = GetStorage();
+      String d = box.read('contact');
+      Vibrate.vibrate();
+      determinePosition().then((value) async {
+        // print(value.latitude);
+        //var geocoding = AppState.of(context).mode;
+        var results = await Geocoder.local.findAddressesFromCoordinates(
+            new Coordinates(value.latitude, value.longitude));
+        print(results[0].addressLine);
+        sender
+            .sendSms(new SmsMessage(d, '${results[0].addressLine}'))
+            .then((value) {
+          print(value.state);
+          value.onStateChanged.listen((event) {
+            //print(event);
+            if (event.toString() == 'SmsMessageState.Sent') {
+              print(event.toString());
+              showToast('Message Sent', context);
+            }
+          });
+        });
+        // String message =
+        //     "I am in problem in address : ${results[0].addressLine}";
+        // List<String> recipents = [d];
+
+        // _sendSMS(message, recipents);
+      });
+      scr = 0;
+    }
+  }
+
+  void startListening() {
+    _screen = new Screen();
+    try {
+      _subscription = _screen.screenStateStream.listen(onData);
+    } on ScreenStateException catch (exception) {
+      print(exception);
+    }
+  }
+
+  // void _sendSMS(String message, List<String> recipents) async {
+  //   String _result = await sendSMS(message: message, recipients: recipents)
+  //       .catchError((onError) {
+  //     print(onError);
+  //   });
+  //   print(_result);
+  // }
+
+  void stopListening() {
+    _subscription.cancel();
   }
 
   // StreamSubscription _volumeButtonSubscription;
@@ -30,15 +122,53 @@ class _MyHomePageState extends State<MyHomePage> {
   AssetsAudioPlayer aud = AssetsAudioPlayer();
 //create a new player
   final audioPlayer = AssetsAudioPlayer();
-
+  bool _hasFlashlight = false;
 // // possible values
 // // LoopMode.none : not looping
 // // LoopMode.single : looping a single audio
 // // LoopMode.playlist : looping the fyll playlist
-
+  int ct = 0;
 // assetsAudioPlayer.setLoopMode(LoopMode.single);
   @override
   void initState() {
+    startListening();
+    ShakeDetector detector = ShakeDetector.autoStart(onPhoneShake: () {
+      print("shaked");
+      ct += 1;
+      if (ct == 2) {
+        final box = GetStorage();
+        String d = box.read('contact');
+        Vibrate.vibrate();
+        determinePosition().then((value) async {
+          // print(value.latitude);
+          //var geocoding = AppState.of(context).mode;
+          var results = await Geocoder.local.findAddressesFromCoordinates(
+              new Coordinates(value.latitude, value.longitude));
+          print(results[0].addressLine);
+          sender
+              .sendSms(new SmsMessage(d, '${results[0].addressLine}'))
+              .then((value) {
+            print(value.state);
+            value.onStateChanged.listen((event) {
+              //print(event);
+              if (event.toString() == 'SmsMessageState.Sent') {
+                print(event.toString());
+                showToast('Message Sent', context);
+              }
+            });
+          });
+          // String message =
+          //     "I am in problem in address : ${results[0].addressLine}";
+          // List<String> recipents = ["1234567890", "5556787676"];
+
+          // _sendSMS(message, recipents);
+        });
+        ct = 0;
+      }
+      //Vibrate.vibrate();
+      // Do stuff on phone shake
+    });
+    initFlashlight();
     //audioPlayer.setLoopMode(LoopMode.single);
     //final LoopMode loopMode = audioPlayer.setLoopMode(value);
     audioPlayer.open(Audio('assets/sounds/siren.mp3'),
@@ -51,7 +181,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
   bool play = false;
   bool whistle = false;
-
+  bool torch = false;
+  initFlashlight() async {
+    bool hasFlash = await Flashlight.hasFlashlight;
+    print("Device has flash ? $hasFlash");
+    setState(() {
+      _hasFlashlight = hasFlash;
+    });
+  }
   // void playAudioNetwork() async{
   //   try{
   //     await player.open(
@@ -78,8 +215,10 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void dispose() {
     super.dispose();
+    stopListening();
     // be sure to cancel on dispose
     audioPlayer.dispose();
+
     aud.dispose();
   }
 
@@ -109,11 +248,51 @@ class _MyHomePageState extends State<MyHomePage> {
                               color: Colors.black,
                             ),
                             onTap: () {
-                              launch(('tel://${'item.mobile_no'}'));
+                              final box = GetStorage();
+                              String d = box.read('contact');
+                              launch(('tel://$d'));
                               print("Pressed");
                             }),
                         Text("Call")
                       ],
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      final box = GetStorage();
+                      String d = box.read('contact');
+                      Vibrate.vibrate();
+                      determinePosition().then((value) async {
+                        // print(value.latitude);
+                        //var geocoding = AppState.of(context).mode;
+                        var results = await Geocoder.local
+                            .findAddressesFromCoordinates(new Coordinates(
+                                value.latitude, value.longitude));
+                        print(results[0].addressLine);
+                        sender
+                            .sendSms(
+                                new SmsMessage(d, '${results[0].addressLine}'))
+                            .then((value) {
+                          print(value.state);
+                          value.onStateChanged.listen((event) {
+                            //print(event);
+                            if (event.toString() == 'SmsMessageState.Sent') {
+                              print(event.toString());
+                              showToast('Message Sent', context);
+                            }
+                          });
+                        });
+                        // String message =
+                        //     "I am in problem in address : ${results[0].addressLine}";
+                        List<String> recipents = [d];
+
+                        //_sendSMS(message, recipents);
+                      });
+                    },
+                    child: Image.asset(
+                      'assets/sos.png',
+                      height: 150,
+                      width: 150,
                     ),
                   ),
                   Container(
@@ -127,13 +306,18 @@ class _MyHomePageState extends State<MyHomePage> {
                               color: Colors.black,
                             ),
                             onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => LoginPage()),
+                              );
                               print("Pressed");
                             }),
                         Text("Contacts")
                       ],
                     ),
                   ),
-                  Container(
+                  /*Container(
                     margin: EdgeInsets.all(8.0),
                     child: Column(
                       children: <Widget>[
@@ -149,10 +333,10 @@ class _MyHomePageState extends State<MyHomePage> {
                         Text("Crash Detect")
                       ],
                     ),
-                  ),
+                  ),*/
                 ],
               ),
-              Padding(
+              /*Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -181,7 +365,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     )
                   ],
                 ),
-              ),
+              ),*/
               //!country start
               Container(
                 color: Colors.redAccent,
@@ -444,34 +628,53 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(7.0),
-                      child: Container(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              SvgPicture.asset(
-                                'assets/flash.svg',
-                                height: 35,
-                                width: 35,
-                              ),
+                    GestureDetector(
+                      onTap: () {
+                        print('toprcjh tapp');
+                        torch = !torch;
+                        if (torch == true) {
+                          Flashlight.lightOn();
+                          //TorchCompat.turnOn();
+                          //play = !play;
+                        } else {
+                          Flashlight.lightOff();
+                          //TorchCompat.turnOff();
+                          // play = !play;
+                        }
+                      },
+                      // onTap: () {
+                      //   TorchCompat.turnOn();
+                      //   TorchCompat.turnOff();
+                      // },
+                      child: Padding(
+                        padding: const EdgeInsets.all(7.0),
+                        child: Container(
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                SvgPicture.asset(
+                                  'assets/flash.svg',
+                                  height: 35,
+                                  width: 35,
+                                ),
 
-                              Text(
-                                'Flash',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.black),
-                              ),
-                              // Text('108'),
-                            ],
+                                Text(
+                                  'Flash',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.black),
+                                ),
+                                // Text('108'),
+                              ],
+                            ),
                           ),
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.redAccent,
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(20.0),
+                          decoration: BoxDecoration(
+                            color: Colors.redAccent,
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(20.0),
+                            ),
                           ),
                         ),
                       ),
