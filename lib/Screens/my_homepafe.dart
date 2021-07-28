@@ -17,6 +17,7 @@ import 'package:shake/shake.dart';
 import 'package:sms/sms.dart';
 //import 'package:sos_jo/Screens/background_service.dart';
 import 'package:sos_jo/Screens/passsword.dart';
+import 'package:sos_jo/animation.dart';
 import 'package:sos_jo/location.dart';
 //import 'package:torch_compat/torch_compat.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -257,7 +258,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       ],
                     ),
                   ),
-                  GestureDetector(
+                  //MyCustomWidget(),
+                  /* GestureDetector(
                     onTap: () {
                       final box = GetStorage();
                       String d = box.read('contact');
@@ -294,7 +296,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       height: 150,
                       width: 150,
                     ),
-                  ),
+                  ),*/
+                  // Container(height: 250, width: 250, child: MyCustomWidget()),
                   Container(
                     margin: EdgeInsets.all(8.0),
                     child: Column(
@@ -311,6 +314,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 MaterialPageRoute(
                                     builder: (context) => LoginPage()),
                               );
+                              //loginpage()
                               print("Pressed");
                             }),
                         Text("Contacts")
@@ -366,6 +370,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ],
                 ),
               ),*/
+              Expanded(child: MyCustomWidget()),
               //!country start
               Container(
                 color: Colors.redAccent,
@@ -725,6 +730,9 @@ class _MyHomePageState extends State<MyHomePage> {
                     )
                   ]),
               //!seond gridview end
+              SizedBox(
+                height: 100,
+              )
               //Expanded(child: ,)
             ],
           ),
