@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:assets_audio_player/assets_audio_player.dart';
+//import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_flashlight/flutter_flashlight.dart';
 //import 'package:flutter_sms/flutter_sms.dart';
 import 'package:flutter/material.dart';
@@ -38,6 +39,19 @@ class _MyHomePageState extends State<MyHomePage> {
   Screen _screen;
   StreamSubscription<ScreenStateEvent> _subscription;
   int scr = 0;
+
+  // String db_url = 'https://portfoliowebsite-c5f71-default-rtdb.firebaseio.com/';
+  // void checkSub() async {
+  //   final DatabaseReference db =
+  //       FirebaseDatabase(databaseURL: db_url).reference().child('Users');
+  //   await db.child('hello').once().then((DataSnapshot snapshot) {
+  //     //print(value)
+  //     Map<dynamic, dynamic> values = snapshot.value;
+  //     print(values);
+
+  //   });
+  // }
+
   void showToast(String msg, BuildContext ctx) {
     Alert(
       context: ctx,
@@ -133,6 +147,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     startListening();
+    //checkSub();
     ShakeDetector detector = ShakeDetector.autoStart(onPhoneShake: () {
       print("shaked");
       ct += 1;
@@ -232,121 +247,43 @@ class _MyHomePageState extends State<MyHomePage> {
           title: Text('SOS App'),
           //actions: [IconButton(onPressed: onPressed, icon: icon)],
         ),
-        body: Container(
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Container(
-                    margin: EdgeInsets.all(8.0),
-                    child: Column(
-                      children: <Widget>[
-                        GestureDetector(
-                            child: Icon(
-                              Icons.call,
-                              size: 30.0,
-                              color: Colors.black,
-                            ),
-                            onTap: () {
-                              final box = GetStorage();
-                              String d = box.read('contact');
-                              launch(('tel://$d'));
-                              print("Pressed");
-                            }),
-                        Text("Call")
-                      ],
-                    ),
-                  ),
-                  //MyCustomWidget(),
-                  /* GestureDetector(
-                    onTap: () {
-                      final box = GetStorage();
-                      String d = box.read('contact');
-                      Vibrate.vibrate();
-                      determinePosition().then((value) async {
-                        // print(value.latitude);
-                        //var geocoding = AppState.of(context).mode;
-                        var results = await Geocoder.local
-                            .findAddressesFromCoordinates(new Coordinates(
-                                value.latitude, value.longitude));
-                        print(results[0].addressLine);
-                        sender
-                            .sendSms(
-                                new SmsMessage(d, '${results[0].addressLine}'))
-                            .then((value) {
-                          print(value.state);
-                          value.onStateChanged.listen((event) {
-                            //print(event);
-                            if (event.toString() == 'SmsMessageState.Sent') {
-                              print(event.toString());
-                              showToast('Message Sent', context);
-                            }
-                          });
-                        });
-                        // String message =
-                        //     "I am in problem in address : ${results[0].addressLine}";
-                        List<String> recipents = [d];
-
-                        //_sendSMS(message, recipents);
-                      });
-                    },
-                    child: Image.asset(
-                      'assets/sos.png',
-                      height: 150,
-                      width: 150,
-                    ),
-                  ),*/
-                  // Container(height: 250, width: 250, child: MyCustomWidget()),
-                  Container(
-                    margin: EdgeInsets.all(8.0),
-                    child: Column(
-                      children: <Widget>[
-                        GestureDetector(
-                            child: Icon(
-                              Icons.contacts,
-                              size: 30.0,
-                              color: Colors.black,
-                            ),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => LoginPage()),
-                              );
-                              //loginpage()
-                              print("Pressed");
-                            }),
-                        Text("Contacts")
-                      ],
-                    ),
-                  ),
-                  /*Container(
-                    margin: EdgeInsets.all(8.0),
-                    child: Column(
-                      children: <Widget>[
-                        GestureDetector(
-                            child: Icon(
-                              Icons.car_repair,
-                              size: 30.0,
-                              color: Colors.black,
-                            ),
-                            onTap: () {
-                              print("Pressed");
-                            }),
-                        Text("Crash Detect")
-                      ],
-                    ),
-                  ),*/
-                ],
-              ),
-              /*Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+        body: SingleChildScrollView(
+          child: Container(
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    GestureDetector(
+                    Container(
+                      margin: EdgeInsets.all(8.0),
+                      child: Column(
+                        children: <Widget>[
+                          GestureDetector(
+                              child: Icon(
+                                Icons.call,
+                                size: 30.0,
+                                color: Colors.black,
+                              ),
+                              onTap: () {
+                                final box = GetStorage();
+                                String d = box.read('contact');
+                                launch(('tel://$d'));
+                                print("Pressed");
+                              }),
+                          Text("Call")
+                        ],
+                      ),
+                    ),
+                    // Container(
+                    //     width: 250,
+                    //     height: 250,
+                    //     child: Expanded(child: MyCustomWidget())),
+                    //MyCustomWidget(),
+                    /* GestureDetector(
                       onTap: () {
+                        final box = GetStorage();
+                        String d = box.read('contact');
+                        Vibrate.vibrate();
                         determinePosition().then((value) async {
                           // print(value.latitude);
                           //var geocoding = AppState.of(context).mode;
@@ -354,11 +291,24 @@ class _MyHomePageState extends State<MyHomePage> {
                               .findAddressesFromCoordinates(new Coordinates(
                                   value.latitude, value.longitude));
                           print(results[0].addressLine);
-                          String message =
-                              "I am in problem in address : ${results[0].addressLine}";
-                          List<String> recipents = ["1234567890", "5556787676"];
-
-                          _sendSMS(message, recipents);
+                          sender
+                              .sendSms(
+                                  new SmsMessage(d, '${results[0].addressLine}'))
+                              .then((value) {
+                            print(value.state);
+                            value.onStateChanged.listen((event) {
+                              //print(event);
+                              if (event.toString() == 'SmsMessageState.Sent') {
+                                print(event.toString());
+                                showToast('Message Sent', context);
+                              }
+                            });
+                          });
+                          // String message =
+                          //     "I am in problem in address : ${results[0].addressLine}";
+                          List<String> recipents = [d];
+        
+                          //_sendSMS(message, recipents);
                         });
                       },
                       child: Image.asset(
@@ -366,375 +316,462 @@ class _MyHomePageState extends State<MyHomePage> {
                         height: 150,
                         width: 150,
                       ),
-                    )
+                    ),*/
+                    // Container(height: 250, width: 250, child: MyCustomWidget()),
+                    Container(
+                      margin: EdgeInsets.all(8.0),
+                      child: Column(
+                        children: <Widget>[
+                          GestureDetector(
+                              child: Icon(
+                                Icons.contacts,
+                                size: 30.0,
+                                color: Colors.black,
+                              ),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => LoginPage()),
+                                );
+                                //loginpage()
+                                print("Pressed");
+                              }),
+                          Text(
+                            "Contacts",
+                            style: TextStyle(fontSize: 12),
+                          )
+                        ],
+                      ),
+                    ),
+                    /*Container(
+                      margin: EdgeInsets.all(8.0),
+                      child: Column(
+                        children: <Widget>[
+                          GestureDetector(
+                              child: Icon(
+                                Icons.car_repair,
+                                size: 30.0,
+                                color: Colors.black,
+                              ),
+                              onTap: () {
+                                print("Pressed");
+                              }),
+                          Text("Crash Detect")
+                        ],
+                      ),
+                    ),*/
                   ],
                 ),
-              ),*/
-              Expanded(child: MyCustomWidget()),
-              //!country start
-              Container(
-                color: Colors.redAccent,
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Column(
+                /*Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'JORDAN',
-                            style: TextStyle(
-                                fontSize: 17,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white),
-                          )
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text(
-                            'TAP TO CALL',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white),
-                          )
-                        ],
-                      ),
-                      GridView.count(
-                          crossAxisCount: 3,
-                          crossAxisSpacing: 6.0,
-                          mainAxisSpacing: 6.0,
-                          shrinkWrap: true,
+                      GestureDetector(
+                        onTap: () {
+                          determinePosition().then((value) async {
+                            // print(value.latitude);
+                            //var geocoding = AppState.of(context).mode;
+                            var results = await Geocoder.local
+                                .findAddressesFromCoordinates(new Coordinates(
+                                    value.latitude, value.longitude));
+                            print(results[0].addressLine);
+                            String message =
+                                "I am in problem in address : ${results[0].addressLine}";
+                            List<String> recipents = ["1234567890", "5556787676"];
+        
+                            _sendSMS(message, recipents);
+                          });
+                        },
+                        child: Image.asset(
+                          'assets/sos.png',
+                          height: 150,
+                          width: 150,
+                        ),
+                      )
+                    ],
+                  ),
+                ),*/
+                Container(
+                    height: 180, child: Expanded(child: MyCustomWidget())),
+                //!country start
+                Container(
+                  color: Colors.redAccent,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            GestureDetector(
-                              onTap: () {
-                                launch(('tel://91125'));
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: Container(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Column(
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: SvgPicture.asset(
-                                            'assets/police.svg',
-                                            height: 25,
-                                            width: 25,
-                                          ),
-                                        ),
-                                        // IconButton(
-                                        //   onPressed: () {},
-                                        //   icon: SvgPicture.asset(
-                                        //       'assets/police.svg'),
-                                        //   /*Icon(
-                                        //       Icons.fireplace,
-                                        //       color: Colors.redAccent,
-                                        //     )*/
-                                        // ),
-                                        Text(
-                                          'Police',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w700,
-                                              color: Colors.black),
-                                        ),
-                                        Text('911'),
-                                      ],
-                                    ),
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.all(
-                                      Radius.circular(20.0),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                launch(('tel://91125'));
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: Container(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Column(
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: SvgPicture.asset(
-                                              'assets/medical.svg'),
-                                        ),
-                                        // IconButton(
-                                        //   onPressed: () {},
-                                        //   icon: SvgPicture.asset(
-                                        //     'assets/medical.svg',
-                                        //     color: Colors.redAccent,
-                                        //   ),
-                                        //   /* Icon(
-                                        //       Icons.medical_services,
-                                        //       color: Colors.redAccent,
-                                        //     )
-                                        //     */
-                                        // ),
-                                        Text(
-                                          'Ambulance',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w700,
-                                              color: Colors.black),
-                                        ),
-                                        Text('911'),
-                                      ],
-                                    ),
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.all(
-                                      Radius.circular(20.0),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                launch(('tel://91125'));
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: Container(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Column(
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: SvgPicture.asset(
-                                              'assets/fire.svg'),
-                                        ),
-                                        // IconButton(
-                                        //   onPressed: () {},
-                                        //   icon: SvgPicture.asset(
-                                        //       'assets/fire.svg'),
-                                        //   /*Icon(
-                                        //       Icons.fireplace,
-                                        //       color: Colors.redAccent,
-                                        //     )*/
-                                        // ),
-                                        Text(
-                                          'Fire',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w700,
-                                              color: Colors.black),
-                                        ),
-                                        Text('911'),
-                                      ],
-                                    ),
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.all(
-                                      Radius.circular(20.0),
-                                    ),
-                                  ),
-                                ),
-                              ),
+                            Text(
+                              'JORDAN',
+                              style: TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white),
                             )
-                          ]),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              'TAP TO CALL',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white),
+                            )
+                          ],
+                        ),
+                        GridView.count(
+                            crossAxisCount: 3,
+                            crossAxisSpacing: 4.0,
+                            mainAxisSpacing: 6.0,
+                            shrinkWrap: true,
+                            childAspectRatio: 3 / 4,
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  launch(('tel://91125'));
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Container(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(4.0),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: SvgPicture.asset(
+                                              'assets/police.svg',
+                                              height: 25,
+                                              width: 25,
+                                            ),
+                                          ),
+                                          // IconButton(
+                                          //   onPressed: () {},
+                                          //   icon: SvgPicture.asset(
+                                          //       'assets/police.svg'),
+                                          //   /*Icon(
+                                          //       Icons.fireplace,
+                                          //       color: Colors.redAccent,
+                                          //     )*/
+                                          // ),
+                                          Text(
+                                            'Police',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                                color: Colors.black),
+                                          ),
+                                          Text('911'),
+                                        ],
+                                      ),
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(20.0),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  launch(('tel://91125'));
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Container(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: SvgPicture.asset(
+                                                'assets/medical.svg'),
+                                          ),
+                                          // IconButton(
+                                          //   onPressed: () {},
+                                          //   icon: SvgPicture.asset(
+                                          //     'assets/medical.svg',
+                                          //     color: Colors.redAccent,
+                                          //   ),
+                                          //   /* Icon(
+                                          //       Icons.medical_services,
+                                          //       color: Colors.redAccent,
+                                          //     )
+                                          //     */
+                                          // ),
+                                          Text(
+                                            'Ambulance',
+                                            style: TextStyle(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w700,
+                                                color: Colors.black),
+                                          ),
+                                          Text('911'),
+                                        ],
+                                      ),
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(20.0),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  launch(('tel://91125'));
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Container(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: SvgPicture.asset(
+                                                'assets/fire.svg'),
+                                          ),
+                                          // IconButton(
+                                          //   onPressed: () {},
+                                          //   icon: SvgPicture.asset(
+                                          //       'assets/fire.svg'),
+                                          //   /*Icon(
+                                          //       Icons.fireplace,
+                                          //       color: Colors.redAccent,
+                                          //     )*/
+                                          // ),
+                                          Text(
+                                            'Fire',
+                                            style: TextStyle(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w700,
+                                                color: Colors.black),
+                                          ),
+                                          Text('911'),
+                                        ],
+                                      ),
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(20.0),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            ]),
+                      ],
+                    ),
+                  ),
+                ),
+                //!red ambulance end
+                Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'PANIC',
+                        style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black),
+                      )
                     ],
                   ),
                 ),
-              ),
-              //!red ambulance end
-              Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'PANIC',
-                      style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black),
-                    )
-                  ],
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        'TAP TO TOGGLE PLAY',
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black),
+                      )
+                    ],
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Text(
-                      'TAP TO TOGGLE PLAY',
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black),
-                    )
-                  ],
-                ),
-              ),
-              //!toggle play ends
-              GridView.count(
-                  crossAxisCount: 3,
-                  crossAxisSpacing: 3.0,
-                  mainAxisSpacing: 3.0,
-                  shrinkWrap: true,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        print('player tapp');
-                        play = !play;
-                        if (play == true) {
-                          audioPlayer.play();
-                          //play = !play;
-                        } else {
-                          audioPlayer.pause();
-                          // play = !play;
-                        }
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(7.0),
-                        child: Container(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                SvgPicture.asset(
-                                  'assets/siren.svg',
-                                  height: 35,
-                                  width: 35,
-                                ),
-                                Text(
-                                  'Siren',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.black),
-                                ),
+                //!toggle play ends
+                GridView.count(
+                    crossAxisCount: 3,
+                    crossAxisSpacing: 3.0,
+                    mainAxisSpacing: 3.0,
+                    shrinkWrap: true,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          print('player tapp');
+                          play = !play;
+                          if (play == true) {
+                            audioPlayer.play();
+                            //play = !play;
+                          } else {
+                            audioPlayer.pause();
+                            // play = !play;
+                          }
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(7.0),
+                          child: Container(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  SvgPicture.asset(
+                                    'assets/siren.svg',
+                                    height: 35,
+                                    width: 35,
+                                  ),
+                                  Text(
+                                    'Siren',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.black),
+                                  ),
 
-                                ///Text('100'),
-                              ],
+                                  ///Text('100'),
+                                ],
+                              ),
                             ),
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.redAccent,
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(20.0),
+                            decoration: BoxDecoration(
+                              color: Colors.redAccent,
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(20.0),
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        print('toprcjh tapp');
-                        torch = !torch;
-                        if (torch == true) {
-                          Flashlight.lightOn();
-                          //TorchCompat.turnOn();
-                          //play = !play;
-                        } else {
-                          Flashlight.lightOff();
-                          //TorchCompat.turnOff();
-                          // play = !play;
-                        }
-                      },
-                      // onTap: () {
-                      //   TorchCompat.turnOn();
-                      //   TorchCompat.turnOff();
-                      // },
-                      child: Padding(
-                        padding: const EdgeInsets.all(7.0),
-                        child: Container(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                SvgPicture.asset(
-                                  'assets/flash.svg',
-                                  height: 35,
-                                  width: 35,
-                                ),
+                      GestureDetector(
+                        onTap: () {
+                          print('toprcjh tapp');
+                          torch = !torch;
+                          if (torch == true) {
+                            Flashlight.lightOn();
+                            //TorchCompat.turnOn();
+                            //play = !play;
+                          } else {
+                            Flashlight.lightOff();
+                            //TorchCompat.turnOff();
+                            // play = !play;
+                          }
+                        },
+                        // onTap: () {
+                        //   TorchCompat.turnOn();
+                        //   TorchCompat.turnOff();
+                        // },
+                        child: Padding(
+                          padding: const EdgeInsets.all(7.0),
+                          child: Container(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  SvgPicture.asset(
+                                    'assets/flash.svg',
+                                    height: 35,
+                                    width: 35,
+                                  ),
 
-                                Text(
-                                  'Flash',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.black),
-                                ),
-                                // Text('108'),
-                              ],
+                                  Text(
+                                    'Flash',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.black),
+                                  ),
+                                  // Text('108'),
+                                ],
+                              ),
                             ),
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.redAccent,
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(20.0),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        print('whistle');
-                        whistle = !whistle;
-                        if (whistle == true) {
-                          aud.play();
-                          //play = !play;
-                        } else {
-                          aud.pause();
-                          // play = !play;
-                        }
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(7.0),
-                        child: Container(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                SvgPicture.asset(
-                                  'assets/whistle.svg',
-                                  height: 35,
-                                  width: 35,
-                                ),
-                                Text(
-                                  'Whistle',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.black),
-                                ),
-                                // Text('101'),
-                              ],
-                            ),
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.redAccent,
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(20.0),
+                            decoration: BoxDecoration(
+                              color: Colors.redAccent,
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(20.0),
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    )
-                  ]),
-              //!seond gridview end
-              SizedBox(
-                height: 100,
-              )
-              //Expanded(child: ,)
-            ],
+                      GestureDetector(
+                        onTap: () {
+                          print('whistle');
+                          whistle = !whistle;
+                          if (whistle == true) {
+                            aud.play();
+                            //play = !play;
+                          } else {
+                            aud.pause();
+                            // play = !play;
+                          }
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(7.0),
+                          child: Container(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  SvgPicture.asset(
+                                    'assets/whistle.svg',
+                                    height: 35,
+                                    width: 35,
+                                  ),
+                                  Text(
+                                    'Whistle',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.black),
+                                  ),
+                                  // Text('101'),
+                                ],
+                              ),
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.redAccent,
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(20.0),
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                    ]),
+                //!seond gridview end
+                SizedBox(
+                  height: 100,
+                )
+                //Expanded(child: ,)
+              ],
+            ),
           ),
         ),
       ),
