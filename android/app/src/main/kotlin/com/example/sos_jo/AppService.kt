@@ -13,7 +13,7 @@ class AppService: Service() {
     override fun onCreate() {
         super.onCreate()
 
-        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.Q)
+        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O)
         {
 
             val notificationBuilder=NotificationCompat.Builder(this,"msgs")
@@ -55,7 +55,7 @@ class AppService: Service() {
     }
 
     override fun onDestroy() {
-        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.Q)
+        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O)
         {
             stopForeground(true);
         }

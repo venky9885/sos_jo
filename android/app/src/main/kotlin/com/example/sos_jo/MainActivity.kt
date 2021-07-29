@@ -30,7 +30,7 @@ class MainActivity: FlutterActivity() {
    fun startServices()
     {
         intent=Intent(this,AppService::class.java)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(intent as Intent)
         }else
         {
@@ -41,7 +41,7 @@ class MainActivity: FlutterActivity() {
     fun stopServices()
     {
         intent=Intent(this,AppService::class.java)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             stopService(intent as Intent)
         }else
         {

@@ -16,6 +16,7 @@ import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:screen_state/screen_state.dart';
 import 'package:shake/shake.dart';
 import 'package:sms/sms.dart';
+import 'package:sos_jo/Screens/background_service.dart';
 //import 'package:sos_jo/Screens/background_service.dart';
 import 'package:sos_jo/Screens/passsword.dart';
 import 'package:sos_jo/animation.dart';
@@ -332,7 +333,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => LoginPage()),
+                                      builder: (context) =>
+                                          //BackGroundService()
+                                          LoginPage()),
                                 );
                                 //loginpage()
                                 print("Pressed");
